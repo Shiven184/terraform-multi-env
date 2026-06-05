@@ -1,0 +1,80 @@
+name: Terraform Dev
+
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - 'environments/dev/**'
+      - 'modules/**'
+      - '.github/workflows/**'
+
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'plan = preview changes | apply = create resources | destroy = delete resources'
+        required: true
+        default: 'plan'
+        type: choice
+        options:
+          - plan
+          - apply
+          - destroy
+
+jobs:
+
+  terraform-dev:
+    name: Terraform Dev
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: environments/dev
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~1.6"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            ${{ secrets.AWS_REGION }}
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+        continue-on-error: true
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        if: github.event_name == 'push' || github.event.inputs.action == 'plan'
+        run: terraform plan -var="db_password=${{ secrets.TF_VAR_DB_PASSWORD }}"
+
+      - name: Terraform Apply
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'apply'
+        run: |
+          terraform apply \
+            -var="db_password=${{ secrets.TF_VAR_DB_PASSWORD }}" \
+            -auto-approve
+
+      - name: Print Outputs
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'apply'
+        run: terraform output
+
+      - name: Terraform Destroy
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'destroy'
+        run: |
+          terraform destroy \
+            -var="db_password=${{ secrets.TF_VAR_DB_PASSWORD }}" \
+            -auto-approve
