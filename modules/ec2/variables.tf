@@ -21,7 +21,7 @@ variable "instance_type" {
 
 variable "root_volume_size_gb" {
   type    = number
-  default = 20
+  default = 30
 }
 
 variable "ssh_allowed_cidrs" {

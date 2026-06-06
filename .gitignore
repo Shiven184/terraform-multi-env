@@ -1,23 +1,11 @@
-# Terraform state files - never commit these
 *.tfstate
 *.tfstate.backup
 *.tfstate.lock.info
-
-# Terraform working directory
 **/.terraform/
 .terraform.lock.hcl
-
-# Terraform plan files
 *.tfplan
-
-# Sensitive variable files - never commit
 *.auto.tfvars
-secret.tfvars
-
-# OS
 .DS_Store
 Thumbs.db
-
-# IDE
 .vscode/
 .idea/

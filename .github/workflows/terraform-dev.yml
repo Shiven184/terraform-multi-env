@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
     inputs:
       action:
-        description: 'plan = preview changes | apply = create resources | destroy = delete resources'
+        description: 'plan = preview | apply = deploy | destroy = delete'
         required: true
         default: 'plan'
         type: choice

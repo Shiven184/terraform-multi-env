@@ -27,13 +27,13 @@ resource "aws_security_group" "rds" {
 }
 
 resource "aws_db_instance" "mysql" {
-  identifier        = "${var.project}-${var.environment}-db"
-  engine            = "mysql"
-  engine_version    = "8.0.42"
-  instance_class    = var.instance_class
-  db_name           = var.database_name
-  username          = var.master_username
-  password          = var.master_password
+  identifier     = "${var.project}-${var.environment}-db"
+  engine         = "mysql"
+  engine_version = "8.0.42"
+  instance_class = var.instance_class
+  db_name        = var.database_name
+  username       = var.master_username
+  password       = var.master_password
 
   allocated_storage     = var.allocated_storage_gb
   max_allocated_storage = var.allocated_storage_gb * 3
@@ -43,14 +43,13 @@ resource "aws_db_instance" "mysql" {
   db_subnet_group_name   = aws_db_subnet_group.rds.name
   vpc_security_group_ids = [aws_security_group.rds.id]
 
-  multi_az               = var.multi_az
-  publicly_accessible    = false
-  deletion_protection    = var.deletion_protection
+  multi_az            = var.multi_az
+  publicly_accessible = false
+  deletion_protection = var.deletion_protection
 
-  backup_retention_period = var.backup_retention_days
-  backup_window           = "02:00-03:00"
-  maintenance_window      = "sun:04:00-sun:05:00"
-
+  backup_retention_period   = var.backup_retention_days
+  backup_window             = "02:00-03:00"
+  maintenance_window        = "sun:04:00-sun:05:00"
   skip_final_snapshot       = var.skip_final_snapshot
   final_snapshot_identifier = var.skip_final_snapshot ? null : "${var.project}-${var.environment}-final-snapshot"
 
